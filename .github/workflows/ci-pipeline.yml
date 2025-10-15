@@ -26,6 +26,7 @@ jobs:
         run: |
           echo "🔧 Installing dependencies..."
           python -m pip install --upgrade pip
+          pip install -e .
           pip install -r requirements.txt
           echo "✅ Dependencies installed successfully."
 
@@ -78,16 +79,15 @@ jobs:
           echo "✅ Docker image scan completed."
 
       # 🔟 Push Docker image to Docker Hub
-      - name: Push Docker image
-        if: success()
+      - name: 🚀 Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: 🐳 Push Docker image
         run: |
-          echo "🚀 Logging in to Docker Hub..."
-          docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
-          echo "✅ Login successful."
-
-          echo "🏷️ Tagging Docker image..."
-          docker tag app:latest ${{ secrets.DOCKER_REPO }}/app:latest
-
-          echo "⬆️ Pushing Docker image to Docker Hub..."
-          docker push ${{ secrets.DOCKER_REPO }}/app:latest
-          echo "✅ Docker image pushed successfully!"
+          docker tag app:latest ${{ secrets.DOCKER_USER }}/git:latest
+          docker tag app:latest ${{ secrets.DOCKER_USER }}/git:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USER }}/git:latest
+          docker push ${{ secrets.DOCKER_USER }}/git:${{ github.sha }}
