@@ -37,7 +37,7 @@ jobs:
       - name: Bandit Security Scan
         run: |
           pip install bandit
-          bandit -r . --severity-level high
+          bandit -r .
 
       # 6️⃣ Trivy File System Scan
       - name: Trivy FS Scan
@@ -45,7 +45,7 @@ jobs:
         with:
           scan-type: fs
           ignore-unfixed: true
-          severity: HIGH
+          severity: HIGH,CRITICAL
           format: table
           output: trivy-fs-scan.txt
 
@@ -53,9 +53,7 @@ jobs:
       - name: Run Unit Tests with Coverage
         run: |
           pip install pytest pytest-cov
-          # Add current directory to Python path
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
-          pytest --cov=my_app --cov-report=term-missing --cov-fail-under=80
+          pytest --cov=my_app --cov-fail-under=80
 
       # 8️⃣ Build Docker image
       - name: Build Docker image
@@ -65,11 +63,12 @@ jobs:
       # 9️⃣ Docker Image Scan
       - name: Scan Docker Image
         run: |
-          trivy image --exit-code 1 --severity HIGH,CRITICAL app:latest || true
+          trivy image --exit-code 1 --severity CRITICAL,HIGH app:latest || true
 
-      # 🔟 Log in to Docker Hub
-      - name: Log in to Docker Hub
+      # 🔟 Push Docker image to Docker Hub
+      - name: Push Docker image
+        if: success()
         run: |
-          docker login -u venu95 -p Venu@5198
-          docker tag app:latest venu95/git/app:latest
-          docker push venu95/git/app:latest      
+          docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
+          docker tag app:latest ${{ secrets.DOCKER_REPO }}/app:latest
+          docker push ${{ secrets.DOCKER_REPO }}/app:latest
