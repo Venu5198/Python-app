@@ -53,9 +53,7 @@ jobs:
       - name: Run Unit Tests with Coverage
         run: |
           pip install pytest pytest-cov
-          # Make my_app importable
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
-          pytest --cov=my_app --cov-report=term-missing --cov-fail-under=80
+          pytest --cov=my_app --cov-fail-under=80
 
       # 8️⃣ Build Docker image
       - name: Build Docker image
@@ -76,5 +74,5 @@ jobs:
           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
         run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASS
-          docker tag app:latest $venu95/git/app:latest
-          docker push $venu95/git/app:latest
+          docker tag app:latest $DOCKER_REPO/app:latest
+          docker push $DOCKER_REPO/app:latest
