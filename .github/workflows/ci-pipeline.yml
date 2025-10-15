@@ -78,16 +78,29 @@ jobs:
           trivy image --exit-code 1 --severity CRITICAL,HIGH app:latest || true
           echo "✅ Docker image scan completed."
 
-      # 🔟 Push Docker image to Docker Hub
-      - name: 🚀 Log in to Docker Hub
+      # 🔟 Debug Docker secrets (optional)
+      - name: Debug Docker secrets
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+        run: |
+          if [ -z "$DOCKER_USER" ]; then echo "DOCKER_USER secret is missing!"; exit 1; else echo "DOCKER_USER secret is set"; fi
+          if [ -z "$DOCKER_PASS" ]; then echo "DOCKER_PASS secret is missing!"; exit 1; else echo "DOCKER_PASS secret is set"; fi
+
+      # 1️⃣1️⃣ Login to Docker Hub
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
 
+      # 1️⃣2️⃣ Push Docker image
       - name: 🐳 Push Docker image
         run: |
           echo "🏷️ Tagging Docker image..."
-          echo "docker tag app:latest ${{ secrets.DOCKER_REPO }}/app:latest"
+          docker tag app:latest ${{ secrets.DOCKER_REPO }}/app:latest
+          docker tag app:latest ${{ secrets.DOCKER_REPO }}/app:${{ github.sha }}
           echo "📤 Pushing Docker image..."
-          echo "docker push ${{ secrets.DOCKER_REPO }}/app:latest"
+          docker push ${{ secrets.DOCKER_REPO }}/app:latest
+          docker push ${{ secrets.DOCKER_REPO }}/app:${{ github.sha }}
+          echo "✅ Docker image pushed successfully."
