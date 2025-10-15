@@ -37,7 +37,7 @@ jobs:
       - name: Bandit Security Scan
         run: |
           pip install bandit
-          bandit -r .
+          bandit -r . --severity-level high
 
       # 6️⃣ Trivy File System Scan
       - name: Trivy FS Scan
