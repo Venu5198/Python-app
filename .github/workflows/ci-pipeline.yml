@@ -88,6 +88,6 @@ jobs:
       - name: 🐳 Push Docker image
         run: |
           echo "🏷️ Tagging Docker image..."
-          docker tag app:latest ${{ secrets.DOCKER_REPO }}/app:latest
+          echo "docker tag app:latest ${{ secrets.DOCKER_REPO }}/app:latest"
           echo "📤 Pushing Docker image..."
-          docker push ${{ secrets.DOCKER_REPO }}/app:latest
+          echo "docker push ${{ secrets.DOCKER_REPO }}/app:latest"
