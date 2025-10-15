@@ -26,6 +26,7 @@ jobs:
         run: |
           echo "🔧 Installing dependencies..."
           python -m pip install --upgrade pip
+          pip install -e .
           pip install -r requirements.txt
           echo "✅ Dependencies installed successfully."
 
